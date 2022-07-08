@@ -1,0 +1,2 @@
+aws s3 sync --region af-south-1 --source-region eu-west-1 s3://2-log-r5-capetown/logs_v2 all_region_logs/R5/
+aws s3 sync --region me-south-1 --source-region eu-west-1 s3://2-log-r16-bahrain/logs_v2 all_region_logs/R16/

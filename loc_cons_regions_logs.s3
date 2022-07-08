@@ -1,0 +1,2 @@
+--region af-south-1 s3://2-log-r5-capetown/logs_v2 
+--region me-south-1 s3://2-log-r16-bahrain/logs_v2
