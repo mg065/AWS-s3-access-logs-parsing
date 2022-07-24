@@ -1,3 +1,6 @@
 .idea
 .idea/*
 tst.sh
+filtered_logs/*
+all_region_logs/*
+

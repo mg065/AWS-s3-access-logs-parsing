@@ -34,27 +34,25 @@ echo "I'm back, lets go..."
 
 # filtering the logs that have 'x-user_id' with GET request and moving those files
 # into the filtered_logs folder for the parsing process.
-if [ "${server_fetch_and_delete_status}" == "${success_status}" ];
-then
-	[ -d filtered_logs ] && rm -r filtered_logs/* & echo "Dir Already Exists, Cleaning it..." || mkdir -p filtered_logs
-	echo "Filtering the logs..."
-	moving_status=1
-	
-	for dir in ./all_region_logs/*/
-	do
-		echo "Directory found!, Scanning..."
-		if [[ $(grep -Rl "x-user_id" "${dir}" | wc -l) -gt 0 ]];
-		then
-    			grep -Rl "x-user_id" "${dir}" | xargs -i mv {} filtered_logs/
-    			echo "Scanned ${dir} and moved to filtered_logs/"
-		else
-			echo "No logs found in the ${dir} having <x-user_id>, which means no logs for bandwidth consumption, going for next directory scan."
-		fi
-		moving_status=${?}
-	done
+[ -d filtered_logs ] && rm -r filtered_logs/* || mkdir -p filtered_logs
+echo "Filtering the logs..."
+moving_status=1
 
-	echo "Moving filtered files status is: ${moving_status}"
-fi
+for dir in ./all_region_logs/*/
+do
+	echo "Directory found!, Scanning..."
+	if [[ $(grep -Rl "x-user_id" "${dir}" | wc -l) -gt 0 ]];
+	then
+		grep -Rl "x-user_id" "${dir}" | xargs -i mv {} filtered_logs/
+		echo "Scanned ${dir} and moved to filtered_logs/"
+	else
+		echo "No logs found in the ${dir} having <x-user_id>, which means no logs for bandwidth consumption, going for next directory scan."
+	fi
+	moving_status=${?}
+done
+
+echo "Moving filtered files status is: ${moving_status}"
+
 
 
 no_of_logs=$(find filtered_logs/ -type f -exec echo Found file {} \; | wc -l)
@@ -116,7 +114,7 @@ else
 	rm -rf all_region_logs/
 fi
 
-truncate --size=1G "${PWD}"../logs/cron_bandwidth_consumptions_log.txt
+truncate --size=1G "${PWD}"/../logs/cron_bandwidth_consumptions_log.txt
 
 duration=${SECONDS}
 echo "$((duration / 60)) minutes and $((duration % 60)) seconds taken to run the script."
