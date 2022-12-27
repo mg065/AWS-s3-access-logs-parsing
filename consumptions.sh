@@ -6,6 +6,7 @@ echo "<===============Cronjob running datetime is: $(date)===============>"
 success_status=0
 app_version="v2"
 bandwidth_consumption_logs_path="/home/ubuntu/scripts/bandwidth/"
+five_hundred_mb=536870912
 cd ${bandwidth_consumption_logs_path} || exit
 
 # Syncing command to fetch all logs to the server
@@ -34,7 +35,11 @@ echo "I'm back, lets go..."
 
 # filtering the logs that have 'x-user_id' with GET request and moving those files
 # into the filtered_logs folder for the parsing process.
-[ -d filtered_logs ] && rm -r filtered_logs/* || mkdir -p filtered_logs
+# [ -d filtered_logs ] && rm -r filtered_logs/* || mkdir -p filtered_logs
+if [[ ! -d "filtered_logs" ]]
+then
+    mkdir -p "filtered_logs"
+fi
 echo "Filtering the logs..."
 moving_status=1
 
@@ -52,7 +57,6 @@ do
 done
 
 echo "Moving filtered files status is: ${moving_status}"
-
 
 
 no_of_logs=$(find filtered_logs/ -type f -exec echo Found file {} \; | wc -l)
@@ -81,8 +85,8 @@ then
 		for csv in ./*.csv
 		do
 			file_name=$(basename "$csv")
-    		environment=$(echo "${file_name}" | cut -f1 -d'-')
-    		S3Bucket="s3://${app_version:1}-${environment}-bandwidth-consumption-logs-csv/"
+    			environment=$(echo "${file_name}" | cut -f1 -d'-')
+    			S3Bucket="s3://${app_version:1}-${environment}-bandwidth-consumption-logs-csv/"
 
 			# shellcheck disable=SC2086
 			s3cmd sync ${csv} ${S3Bucket} --stats
@@ -100,7 +104,8 @@ then
 	
 			# Removing all logs recursively on server
 			rm -rf all_region_logs/
-
+			rm -rf filtered_logs/
+			
 			remove_logs_status=${?}
 			echo "Remove server logs status is: ${remove_logs_status}"
 		else
@@ -114,7 +119,13 @@ else
 	rm -rf all_region_logs/
 fi
 
-truncate --size=1G "${PWD}"/../logs/cron_bandwidth_consumptions_log.txt
-
+log_file_size=$(wc -c < "${PWD}"/../logs/consumptions.txt)
+if [[ $(($log_file_size - five_hundred_mb)) -ge 0 ]]; then
+	truncate -o ${five_hundred_mb} "${PWD}"/../logs/consumptions.txt
+	echo "consumptions.txt log has been truncated by ${five_hundred_mb} bytes from the top."
+fi
+# truncate --size=1G "${PWD}"/../logs/consumtions.txt
+# dd if=cron_bandwidth_consumptions_log.txt of=cron_bandwidth_consumptions_log.txt ibs=16 skip=1
+# dd if=cron_bandwidth_consumptions_log.txt bs=512k | { dd bs=1131 count=1 of=/dev/null; dd bs=512k of=cron_bandwidth_consumptions_log.txt; }
 duration=${SECONDS}
 echo "$((duration / 60)) minutes and $((duration % 60)) seconds taken to run the script."

@@ -1,15 +1,1 @@
-s3://2-log-r1-virginia/logs_v2/*
-s3://2-log-r2-ohio/logs_v2/*
-s3://2-log-r3-california/logs_v2/*
-s3://2-log-r4-oregon/logs_v2/*
-s3://2-log-r6-mumbai/logs_v2/*
-s3://2-log-r7-seoul/logs_v2/*
-s3://2-log-r8-singapore/logs_v2/*
-s3://2-log-r9-sydney/logs_v2/*
-s3://2-log-r10-tokyo/logs_v2/*
-s3://2-log-r11-canada/logs_v2/*
-s3://2-log-r12-frankfurt/logs_v2/*
-s3://2-log-r13-ireland/logs_v2/*
-s3://2-log-r14-london/logs_v2/*
-s3://2-log-r15-paris/logs_v2/*
-s3://2-log-r17-sao-paulo/logs_v2/*
+s3cmd sync s3://2-log-r3-california/logs_v2 all_region_logs/R3/ --stats --delete-after-fetch &>/dev/null
